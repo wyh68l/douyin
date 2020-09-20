@@ -3,7 +3,7 @@ const resolve = dir => {return path.join(__dirname, dir)}
 let target = 'http://gaogaogaogaogaogao.zs520ds.cn';
 // let target = 'https://blog.csdn.net/superKM';
 if (process.env.NODE_ENV === 'production') {
-    target = '';
+    target = 'http://gaogaogaogaogaogao.zs520ds.cn';
 }
 module.exports = {
     // 选项...
@@ -89,10 +89,6 @@ module.exports = {
                  * 如果设置了,那在axios的路径中/article替换成https://baike.baidu.com/相当于根目录一样！
                  *  */
             },
-            'ali-cdn.kwai.net/upic':{
-                target: 'http://',
-                changOrigin: true, //是否跨域，设置为true;(必须)
-            }
         }
     }
 }
