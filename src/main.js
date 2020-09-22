@@ -6,6 +6,7 @@ import store from "./store";
 import Vant from 'vant';
 import 'vant/lib/index.css';
 import './static/css/iconfont.css'
+window.fs = require('fs');
 
 Vue.use(Vant);
 

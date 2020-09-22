@@ -6,7 +6,7 @@ import axios from 'axios'
 // axios全局设置
 const Axios = axios.create({
   baseURL: process.env.BASE_API,
-  timeout: 1000 * 60 * 10,
+  timeout: 10000,
   responseType: 'json'
 })
 

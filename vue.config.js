@@ -10,7 +10,7 @@ module.exports = {
     publicPath: process.env.NODE_ENV === 'production' ? './' : '/',//部署服务器路径
     // 输出文件目录
     outputDir: "dist",
-    assetsDir: "static",//放置生成的静态资源的目录
+    //assetsDir: "static",//放置生成的静态资源的目录
     indexPath: "index.html",//指定生成的 index.html 的输出路径
     filenameHashing: true,
     // pages: undefined,
@@ -76,19 +76,19 @@ module.exports = {
         hotOnly: false,
         open: false, //配置自动启动浏览器
         // 设置代理
-        proxy: {
-            // 如果你的前端应用和后端 API 服务器没有运行在同一个主机上，你需要在开发环境下将 API 请求代理到 API 服务器。这个问题可以通过 vue.config.js 中的 devServer.proxy 选项来配置。
-            "/gaotian": {
-                //你要跨域的域名(包含host、端口号,切记：一定要带上http头);
-                //同一个域名只能设置一次跨域，否则重复报错！
-                target: target,
-                ws: true,
-                changOrigin: true, //是否跨域，设置为true;(必须)
-                /**(可选设置----如果访问域名根目录，那这里必须设置重定向了)
-                 * 是否要把'/api'目录重定向去哪里，跟目录还是其他（可选）
-                 * 如果设置了,那在axios的路径中/article替换成https://baike.baidu.com/相当于根目录一样！
-                 *  */
-            },
-        }
-    }
+        // proxy: {
+        //     // 如果你的前端应用和后端 API 服务器没有运行在同一个主机上，你需要在开发环境下将 API 请求代理到 API 服务器。这个问题可以通过 vue.config.js 中的 devServer.proxy 选项来配置。
+        //     "/gaotian": {
+        //         //你要跨域的域名(包含host、端口号,切记：一定要带上http头);
+        //         //同一个域名只能设置一次跨域，否则重复报错！
+        //         target: target,
+        //         ws: true,
+        //         changOrigin: true, //是否跨域，设置为true;(必须)
+        //         /**(可选设置----如果访问域名根目录，那这里必须设置重定向了)
+        //          * 是否要把'/api'目录重定向去哪里，跟目录还是其他（可选）
+        //          * 如果设置了,那在axios的路径中/article替换成https://baike.baidu.com/相当于根目录一样！
+        //          *  */
+        //     },
+        // }
+    },
 }

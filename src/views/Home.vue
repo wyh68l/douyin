@@ -21,7 +21,6 @@
                                x5-video-player-fullscreen="true" playsinline preload="auto"
                                :src="item.url" :playOrPause="playOrPause"
                                @click="pauseVideo" @ended="onPlayerEnded($event)"
-                               autoplay="autoplay"
                         >
                         </video>
                         <!-- 封面 -->
@@ -226,20 +225,22 @@
                     author_id: 1,//作者ID
                     author:'superKM',
                     des:'武汉加油'
-                }, {
-                    url: 'http://video.jishiyoo.com/549ed372c9d14b029bfb0512ba879055/8e2dc540573d496cb0942273c4a4c78c-15844fe70971f715c01d57c0c6595f45-ld.mp4',
-                    cover: '',
-                    tag_image: 'http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg',
-                    fabulous: false,//是否赞过
-                    tagFollow: false,//是否关注过该作者
-                    author_id: 1,//作者ID
-                    author:'superKM',
-                    des:'中国加油'
-                }],
+                },
+                //     {
+                //     url: 'http://video.jishiyoo.com/549ed372c9d14b029bfb0512ba879055/8e2dc540573d496cb0942273c4a4c78c-15844fe70971f715c01d57c0c6595f45-ld.mp4',
+                //     cover: '',
+                //     tag_image: 'http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg',
+                //     fabulous: false,//是否赞过
+                //     tagFollow: false,//是否关注过该作者
+                //     author_id: 1,//作者ID
+                //     author:'superKM',
+                //     des:'中国加油'
+                // }
+                ],
                 isVideoShow: false,
                 playOrPause: false,
                 video: null,
-                iconPlayShow: false,
+                iconPlayShow: true,
                 isAndroid: u.indexOf('Android') > -1 || u.indexOf('Adr') > -1, // android终端
                 isiOS: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), // ios终端
                 tabIndex: 0,
@@ -259,6 +260,16 @@
             //监听输入变化
             comment_text(newV, oldV) {
                 newV == '' ? this.canSend = false : this.canSend = true
+            },
+            current(newV, oldV){
+                if(newV == this.videoList.length - 1){
+                    Toast.loading({
+                        message: '加载中...',
+                        forbidClick: true,
+                        duration:0
+                    });
+                    this.setIndex('toast');
+                }
             }
         },
         mounted() {
@@ -286,7 +297,7 @@
                     tagFollow: false,//是否关注过该作者
                     author_id: code,//作者ID
                     author:'superKM',
-                    des:''
+                    des:'',
                 }
                 getRandomVideo(code).then(res=>{
                     if(res.request.responseURL){
@@ -308,11 +319,11 @@
                     let data = [{
                         "comment_id": 297,
                         "p_id": 0,
-                        "comment_content": "你好，我叫蓝湛",
+                        "comment_content": "你好，我叫DIO",
                         "love_count": 0,
                         "create_time": "1月前",
                         "user_id": 78634,
-                        "nickname": "蓝忘机\uD83C\uDF1F",
+                        "nickname": "砸瓦鲁多\uD83C\uDF1F",
                         "avatar": "http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg",
                         "be_commented_user_id": 0,
                         "be_commented_nickname": "",
@@ -320,11 +331,11 @@
                         "child_comment": [{
                             "comment_id": 298,
                             "p_id": 296,
-                            "comment_content": "蓝二公子，今天天气不错",
+                            "comment_content": "木大木大木大木大",
                             "love_count": 1,
                             "create_time": "7天前",
                             "user_id": 55163,
-                            "nickname": "魏婴",
+                            "nickname": "DIO",
                             "avatar": "http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTKPJb1k8zia02PjVibdaDJ83JIDGm0hIsY34kAlXyZMT6FMBibdw6rhdPPjpxtp6d8B75x5Kpicxp2gqw/132",
                             "be_commented_user_id": 78480,
                             "be_commented_nickname": "chenchen",
@@ -465,7 +476,7 @@
                             this.videoComment[index].child_comment[index2].love_count--
                         }
                     }
-                }, 500)
+                }, 200)
             },
             //点击回复
             replayUser(item, index, index2) {
@@ -495,6 +506,9 @@
             },
             //改变菜单
             changeTab(index) {
+                if(index == 2){
+                    Toast.fail('敬请期待哦~')
+                }
                 this.tabIndex = index
             },
             //改变收藏状态
@@ -514,7 +528,7 @@
                 //改变的时候 暂停当前播放的视频
                 clearInterval(videoProcessInterval)
                 this.videoProcess = 0;
-                console.log(index,this.current);
+                console.log(index,this.current,this.current2);
                 let video = document.querySelectorAll('video')[this.current];
                 video.pause();
                 this.playOrPause = false;
@@ -533,6 +547,25 @@
                 }
                 //预加载下一个视频
                 if(index > this.current2){
+                  this.setIndex();
+                }
+            },
+            setIndex(type = '',num = 0){
+                if(type == 'toast'){
+                    let flag = num || 0;
+                    if(flag <= 5){
+                        new Promise(resolve => {
+                            this.getVideo(resolve);
+                        }).then(()=>{
+                            flag === 0?Toast.clear():'';
+                            flag++;
+                            this.current2 = this.current;
+                            let videoLast = document.querySelectorAll('video')[this.videoList.length - 1];
+                            videoLast.pause();
+                            this.setIndex('toast',flag);
+                        })
+                    }
+                }else {
                     new Promise(resolve => {
                         this.getVideo(resolve);
                     }).then(()=>{
@@ -541,6 +574,7 @@
                         videoLast.pause();
                     })
                 }
+
             },
             // 开始播放
             playvideo(event) {
@@ -602,7 +636,7 @@
             },
             //复制当前链接
             copyUrl() {
-                let httpUrl = window.location.href;
+                let httpUrl = 'https://wws.lanzous.com/i9QuAgttfrg';
                 var oInput = document.createElement('input');
                 oInput.value = httpUrl;
                 document.body.appendChild(oInput);
@@ -817,13 +851,13 @@
         width: 100%;
         left: 0;
         box-sizing: border-box;
-        background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
+        background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0));
         /* Safari 5.1 - 6.0 */
-        background: -o-linear-gradient(top, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
+        background: -o-linear-gradient(top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0));
         /* Opera 11.1 - 12.0 */
-        background: -moz-linear-gradient(top, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
+        background: -moz-linear-gradient(top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0));
         /* Firefox 3.6 - 15 */
-        background: linear-gradient(to top, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0));
         /* 标准的语法 */
     }
 
@@ -847,7 +881,7 @@
         position: fixed;
         bottom: 0;
         width: 100%;
-        background: rgba(0, 0, 0, 0.85);
+        //background: rgba(0, 0, 0, 0.85);
         height: 48px;
         /*border-top: 1px solid rgba(255, 255, 255, 0.7);*/
         max-width: 550px;
