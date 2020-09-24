@@ -80,14 +80,17 @@
             <div class="share_box" :class="showShareBox?'share_active':''">
                 <div class="share_tips">分享到</div>
                 <ul class="share_ul">
-                    <li class="share_li pengyouquan_li">
+                    <li class="share_li pengyouquan_li" @click="more">
                         <i class="iconfont icon-pengyouquan pengyouquan"></i>
+                        <p>朋友圈</p>
                     </li>
-                    <li class="share_li">
-                        <i class="iconfont icon-weixin weixin"></i>
+                    <li class="share_li" @click="downVideo">
+                        <img src="../assets/down.png" alt="" style="width: 45px;height: 45px;">
+                        <p>下载视频</p>
                     </li>
                     <li class="share_li" @click="copyUrl">
                         <i class="iconfont icon-lianjie lianjie"></i>
+                        <p>分享链接</p>
                     </li>
                     <div class="clear"></div>
                 </ul>
@@ -177,7 +180,6 @@
 </template>
 <script>
     import Vue from "vue";
-    import axios from "axios";
     import {
         Swipe,
         SwipeItem,
@@ -198,7 +200,8 @@
             return {
                 current: 0,
                 current2: 0,
-                videoList: [{
+                videoList: [
+                    {
                     url: 'http://video.jishiyoo.com/3720932b9b474f51a4cf79f245325118/913d4790b8f046bfa1c9a966cd75099f-8ef4af9b34003bd0bc0261cda372521f-ld.mp4',//视频源
                     cover: '',//封面
                     tag_image: 'http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg',//作者头像
@@ -207,25 +210,26 @@
                     author_id: 1,//作者ID
                     author:'superKM',
                     des:'武汉加油'
-                }, {
-                    url: 'http://video.jishiyoo.com/1eedc49bba7b4eaebe000e3721149807/d5ab221b92c74af8976bd3c1473bfbe2-4518fe288016ee98c8783733da0e2da4-ld.mp4',
-                    cover: '',
-                    tag_image: 'http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449298299M3V50.jpg',
-                    fabulous: true,//是否赞过
-                    tagFollow: false,//是否关注过该作者
-                    author_id: 2,//作者ID
-                    author:'superKM',
-                    des:'中国加油'
-                }, {
-                    url: 'http://video.jishiyoo.com/161b9562c780479c95bbdec1a9fbebcc/8d63913b46634b069e13188b03073c09-d25c062412ee3c4a0758b1c48fc8c642-ld.mp4',
-                    cover: '',
-                    tag_image: 'http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg',
-                    fabulous: false,//是否赞过
-                    tagFollow: false,//是否关注过该作者
-                    author_id: 1,//作者ID
-                    author:'superKM',
-                    des:'武汉加油'
                 },
+                    // {
+                //     url: 'http://video.jishiyoo.com/1eedc49bba7b4eaebe000e3721149807/d5ab221b92c74af8976bd3c1473bfbe2-4518fe288016ee98c8783733da0e2da4-ld.mp4',
+                //     cover: '',
+                //     tag_image: 'http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449298299M3V50.jpg',
+                //     fabulous: true,//是否赞过
+                //     tagFollow: false,//是否关注过该作者
+                //     author_id: 2,//作者ID
+                //     author:'superKM',
+                //     des:'中国加油'
+                // }, {
+                //     url: 'http://video.jishiyoo.com/161b9562c780479c95bbdec1a9fbebcc/8d63913b46634b069e13188b03073c09-d25c062412ee3c4a0758b1c48fc8c642-ld.mp4',
+                //     cover: '',
+                //     tag_image: 'http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg',
+                //     fabulous: false,//是否赞过
+                //     tagFollow: false,//是否关注过该作者
+                //     author_id: 1,//作者ID
+                //     author:'superKM',
+                //     des:'武汉加油'
+                // },
                 //     {
                 //     url: 'http://video.jishiyoo.com/549ed372c9d14b029bfb0512ba879055/8e2dc540573d496cb0942273c4a4c78c-15844fe70971f715c01d57c0c6595f45-ld.mp4',
                 //     cover: '',
@@ -283,9 +287,19 @@
             })
         },
         created(){
-            //this.getVideo();
+            this.setIndex('toast');
         },
         methods: {
+            more(){
+                Toast('敬请期待哦~')
+            },
+            //下载视频
+            downVideo(){
+                plus.runtime.openURL( this.videoList[this.current].url, (res)=>{
+                    Toast(res)
+                });
+                //console.log(this.videoList[this.current].url);
+            },
             //获取随机视频
             getVideo(resolve){
                 let code = Math.random()*99999;
@@ -1016,6 +1030,10 @@
     .share_li i {
         font-size: 44px;
     }
+    .share_li p {
+        margin: 5px auto;
+        font-size: 14px;
+    }
 
     .share_cancel {
         text-align: center;
@@ -1030,7 +1048,7 @@
     }
 
     .pengyouquan_li {
-        animation: rotating 8s linear infinite
+        /*animation: rotating 8s linear infinite*/
     }
 
     @keyframes rotating {

@@ -11,8 +11,8 @@ export function getRainbow() {
 //随机视频接口
 export function getRandomVideo(code) {
   return fetch({
-     // url:'/gaotian/video.php?_t='+code,
-    url:'http://gaogaogaogaogaogao.zs520ds.cn/gaotian/video.php?_t='+code,
+    url:'/gaotian/video.php?_t='+code,
+    //url:'http://gaogaogaogaogaogao.zs520ds.cn/gaotian/video.php?_t='+code,
     method:'get'
   })
 
