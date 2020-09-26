@@ -11,11 +11,30 @@ export function getRainbow() {
 //随机视频接口
 export function getRandomVideo(code) {
   return fetch({
-    url:'/gaotian/video.php?_t='+code,
-    //url:'http://gaogaogaogaogaogao.zs520ds.cn/gaotian/video.php?_t='+code,
+    //url:'/gaotian/video.php?_t='+code,
+    url:'http://gaogaogaogaogaogao.zs520ds.cn/gaotian/video.php?_t='+code,
     method:'get'
   })
 
+}
+
+//获取app下载链接
+export function getApkUrl() {
+  return fetch({
+    //url:'/api/download/url',
+    url:'http://47.97.104.206:3000/download/url',
+    method:'get'
+  })
+}
+
+//获取版本更新
+export function getVersion(data) {
+  return fetch({
+    url:'http://47.97.104.206:3000/app/version',
+    //url:'/api/app/version',
+    method:'get',
+    params:data
+  })
 }
 
 

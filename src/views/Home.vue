@@ -3,6 +3,7 @@
         <!--<a href="">-->
             <!--<img src="http://npjy.oss-cn-beijing.aliyuncs.com/images/file-15807175142891GIFp.png" class="back_i" alt="">-->
         <!--</a>-->
+        <img src="../assets/dio.jpg" alt="" style="width: 100%;height: 100%;" v-if="bgc">
         <div class="van_swipe">
             <!--vant van-swipe 滑动组件 -->
             <van-swipe :initial-swipe="current2" :show-indicators="false" @change="onChange" vertical :loop="false" ref="swiper">
@@ -88,9 +89,10 @@
                         <img src="../assets/down.png" alt="" style="width: 45px;height: 45px;">
                         <p>下载视频</p>
                     </li>
-                    <li class="share_li" @click="copyUrl">
+                    <li class="share_li" @click="UpdateApp">
+                        <img v-if="isUpdate" src="../assets/new.png" alt="" class="new">
                         <i class="iconfont icon-lianjie lianjie"></i>
-                        <p>分享链接</p>
+                        <p>版本更新</p>
                     </li>
                     <div class="clear"></div>
                 </ul>
@@ -187,7 +189,7 @@
     } from 'vant';
     // 引入微信分享
     import wx from "weixin-js-sdk";
-    import {getRandomVideo} from '../serves/main.js'
+    import {getRandomVideo,getApkUrl,getVersion} from '../serves/main.js'
     import {fetch} from '../serves/serves.js'
 
     Vue.use(Swipe, Toast).use(SwipeItem);
@@ -200,46 +202,18 @@
             return {
                 current: 0,
                 current2: 0,
+                bgc:true,
                 videoList: [
-                    {
-                    url: 'http://video.jishiyoo.com/3720932b9b474f51a4cf79f245325118/913d4790b8f046bfa1c9a966cd75099f-8ef4af9b34003bd0bc0261cda372521f-ld.mp4',//视频源
-                    cover: '',//封面
-                    tag_image: 'http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg',//作者头像
-                    fabulous: false,//是否赞过
-                    tagFollow: false,//是否关注过该作者
-                    author_id: 1,//作者ID
-                    author:'superKM',
-                    des:'武汉加油'
-                },
-                    // {
-                //     url: 'http://video.jishiyoo.com/1eedc49bba7b4eaebe000e3721149807/d5ab221b92c74af8976bd3c1473bfbe2-4518fe288016ee98c8783733da0e2da4-ld.mp4',
-                //     cover: '',
-                //     tag_image: 'http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449298299M3V50.jpg',
-                //     fabulous: true,//是否赞过
-                //     tagFollow: false,//是否关注过该作者
-                //     author_id: 2,//作者ID
-                //     author:'superKM',
-                //     des:'中国加油'
-                // }, {
-                //     url: 'http://video.jishiyoo.com/161b9562c780479c95bbdec1a9fbebcc/8d63913b46634b069e13188b03073c09-d25c062412ee3c4a0758b1c48fc8c642-ld.mp4',
-                //     cover: '',
-                //     tag_image: 'http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg',
+                //     {
+                //     url: 'http://video.jishiyoo.com/3720932b9b474f51a4cf79f245325118/913d4790b8f046bfa1c9a966cd75099f-8ef4af9b34003bd0bc0261cda372521f-ld.mp4',//视频源
+                //     cover: '',//封面
+                //     tag_image: 'http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg',//作者头像
                 //     fabulous: false,//是否赞过
                 //     tagFollow: false,//是否关注过该作者
                 //     author_id: 1,//作者ID
                 //     author:'superKM',
                 //     des:'武汉加油'
                 // },
-                //     {
-                //     url: 'http://video.jishiyoo.com/549ed372c9d14b029bfb0512ba879055/8e2dc540573d496cb0942273c4a4c78c-15844fe70971f715c01d57c0c6595f45-ld.mp4',
-                //     cover: '',
-                //     tag_image: 'http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg',
-                //     fabulous: false,//是否赞过
-                //     tagFollow: false,//是否关注过该作者
-                //     author_id: 1,//作者ID
-                //     author:'superKM',
-                //     des:'中国加油'
-                // }
                 ],
                 isVideoShow: false,
                 playOrPause: false,
@@ -257,7 +231,11 @@
                 commentPlaceholder: '留下你精彩的评论吧',//评论Placeholder
                 replayUserData: '',
                 to_comment_id: '',
+                apkUrl:'',
                 videoProcess: 0,//视频播放进度
+                version:105,
+                updateAppUrl:'',
+                isUpdate:false
             }
         },
         watch: {
@@ -287,7 +265,14 @@
             })
         },
         created(){
+            Toast.loading({
+                message: '加载中...',
+                forbidClick: true,
+                duration:0
+            });
             this.setIndex('toast');
+            this.getApkUrl();//获取最新链接
+            this.getVersion();//获取版本更新
         },
         methods: {
             more(){
@@ -295,6 +280,7 @@
             },
             //下载视频
             downVideo(){
+                this.copyUrl(this.videoList[this.current].url);
                 plus.runtime.openURL( this.videoList[this.current].url, (res)=>{
                     Toast(res)
                 });
@@ -572,6 +558,7 @@
                             this.getVideo(resolve);
                         }).then(()=>{
                             flag === 0?Toast.clear():'';
+                            this.bgc = false;
                             flag++;
                             this.current2 = this.current;
                             let videoLast = document.querySelectorAll('video')[this.videoList.length - 1];
@@ -648,9 +635,17 @@
                 this.isVideoShow = false
                 this.current += this.current
             },
+            getApkUrl(){
+                getApkUrl().then(res =>{
+                    let result = res.data.data;
+                    if(result.status === 200){
+                        this.apkUrl = result.link;
+                    }
+                })
+            },
             //复制当前链接
-            copyUrl() {
-                let httpUrl = 'https://wws.lanzous.com/i9QuAgttfrg';
+            copyUrl(url) {
+                let httpUrl = url || this.apkUrl;
                 var oInput = document.createElement('input');
                 oInput.value = httpUrl;
                 document.body.appendChild(oInput);
@@ -659,11 +654,35 @@
                 oInput.className = 'oInput';
                 oInput.style.display = 'none';
                 alert("链接复制成功")
+            },
+            getVersion(){
+                let options = {
+                    version:this.version,
+                    appName:'version_MY'
+                }
+                getVersion(options).then(res =>{
+                    let result = res.data.data;
+                    if(res.data.status === 200 && result.flag){
+                        this.updateAppUrl = result.link;
+                        this.isUpdate = true;
+                    }
+                })
+            },
+            //复制当前链接
+            UpdateApp() {
+                if(this.isUpdate){
+                    this.copyUrl(this.updateAppUrl);
+                    plus.runtime.openURL(this.updateAppUrl, (res)=>{
+                        Toast(res)
+                    });
+                }else {
+                    Toast('已是最新版本哦~')
+                }
             }
         }
     }
 </script>
-<style scoped>
+<style scoped lang="scss">
     .clear {
         clear: both;
     }
@@ -1025,6 +1044,14 @@
         float: left;
         width: 33%;
         text-align: center;
+        position: relative;
+
+        .new{
+            position: absolute;
+            top: 0;
+            right: 15px;
+            width: 30px;height: 30px;
+        }
     }
 
     .share_li i {

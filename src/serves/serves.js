@@ -1,17 +1,27 @@
 import axios from 'axios'
+//import Qs from 'qs'
+
+// axios({
+//如果使用post请求 要加上请求头和使用qs序列化
+//     headers: {
+//         'Content-Type': 'application/x-www-form-urlencoded'
+//     },
+//     method: 'post',
+//     url: '/api/lockServer/search',
+//     data: Qs.stringify(data)//post请求使用data，get使用params
+// })
+
 
 // 时间戳
 //const NewTimeStamp = new Date().getTime()
 
 // axios全局设置
 const Axios = axios.create({
-  baseURL: process.env.BASE_API,
-  timeout: 10000,
+  timeout: 6000,
   responseType: 'json'
 })
 
-// axios.defaults.timeout = 30000
-// axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8'
+axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8'
 
 //划重点！ 由于微信小程序需要用微信官方请求接口，因此需要用adapter自定义
 //`adapter` 允许自定义处理请求，以使测试更轻松,返回一个 promise 并应用一个有效的响应
@@ -70,10 +80,10 @@ Axios.interceptors.response.use(
   res => {
     // 200,204为处理成功
     //注意这里statusCode有可能微信的ts声明文件里未定义，需要去声明文件里定义一下
-    if ([200, 204].indexOf(res.status) === -1) {
-      console.log('res.status', res)
-      return Promise.reject(res.data)
-    }
+    // if ([200, 204].indexOf(res.status) === -1) {
+    //   console.log('res.status', res)
+    //   return Promise.reject(res.data)
+    // }
     return res
   },
   error => {
