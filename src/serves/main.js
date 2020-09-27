@@ -21,7 +21,7 @@ export function getRandomVideo(code) {
 //获取app下载链接
 export function getApkUrl() {
   return fetch({
-    //url:'/api/download/url',
+    // url:'/api/download/url',
     url:'http://47.97.104.206:3000/download/url',
     method:'get'
   })
@@ -31,7 +31,7 @@ export function getApkUrl() {
 export function getVersion(data) {
   return fetch({
     url:'http://47.97.104.206:3000/app/version',
-    //url:'/api/app/version',
+    // url:'/api/app/version',
     method:'get',
     params:data
   })

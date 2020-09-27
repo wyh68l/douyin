@@ -1,12 +1,13 @@
 <template>
     <div class="container_box" id="video_box">
         <!--<a href="">-->
-            <!--<img src="http://npjy.oss-cn-beijing.aliyuncs.com/images/file-15807175142891GIFp.png" class="back_i" alt="">-->
+        <!--<img src="http://npjy.oss-cn-beijing.aliyuncs.com/images/file-15807175142891GIFp.png" class="back_i" alt="">-->
         <!--</a>-->
         <img src="../assets/dio.jpg" alt="" style="width: 100%;height: 100%;" v-if="bgc">
         <div class="van_swipe">
             <!--vant van-swipe 滑动组件 -->
-            <van-swipe :initial-swipe="current2" :show-indicators="false" @change="onChange" vertical :loop="false" ref="swiper">
+            <van-swipe :initial-swipe="current2" :show-indicators="false" @change="onChange" vertical :loop="false"
+                       ref="swiper">
                 <van-swipe-item v-for="(item, index) in videoList" :key="index" class="product_swiper">
                     <div class="video_container">
                         <!--video属性
@@ -49,7 +50,8 @@
                             <div class="tools_r_num">12.5w</div>
                         </div>
                         <div class="tools_r_li" @click="changeShare">
-                            <i class="iconfont icon-iconfontforward icon_right"></i>
+                            <!--<i class="iconfont icon-iconfontforward icon_right"></i>-->
+                            <img src="../assets/more.png" alt="" style="width: 42px;height: 42px;">
                             <div class="tools_r_num">22.2w</div>
                         </div>
                     </div>
@@ -67,25 +69,25 @@
             <!--底部操作栏-->
             <div class="container_bottom">
                 <div class="border_progress" :style="'width:'+videoProcess+'%'"></div>
-                    <div class="bottom_tab" :class="tabIndex==0?'tab_active':''" @click="changeTab(0)">
-                        <span class="bottom_tab_span ">首页</span>
-                    </div>
-                    <div class="bottom_tab" :class="tabIndex==1?'tab_active':''" @click="changeTab(1)">
-                        <img src="http://oss.jishiyoo.com/images/file-1575427746903.png" alt="" class="bottom_tab_icon">
-                    </div>
-                    <div class="bottom_tab" :class="tabIndex==2?'tab_active':''" @click="changeTab(2)">
-                        <span class="bottom_tab_span">我的</span>
-                    </div>
+                <div class="bottom_tab" :class="tabIndex==0?'tab_active':''" @click="changeTab(0)">
+                    <span class="bottom_tab_span ">首页</span>
+                </div>
+                <div class="bottom_tab" :class="tabIndex==1?'tab_active':''" @click="changeTab(1)">
+                    <img src="http://oss.jishiyoo.com/images/file-1575427746903.png" alt="" class="bottom_tab_icon">
+                </div>
+                <div class="bottom_tab" :class="tabIndex==2?'tab_active':''" @click="changeTab(2)">
+                    <span class="bottom_tab_span">我的</span>
+                </div>
             </div>
             <!--分享弹框-->
             <div class="share_box" :class="showShareBox?'share_active':''">
                 <div class="share_tips">分享到</div>
                 <ul class="share_ul">
-                    <li class="share_li pengyouquan_li" @click="more">
-                        <i class="iconfont icon-pengyouquan pengyouquan"></i>
-                        <p>朋友圈</p>
+                    <li class="share_li pengyouquan_li" @click="share">
+                        <i class="iconfont icon-iconfontforward pengyouquan"></i>
+                        <p>分享链接</p>
                     </li>
-                    <li class="share_li" @click="downVideo">
+                    <li class="share_li" @click="createDownload">
                         <img src="../assets/down.png" alt="" style="width: 45px;height: 45px;">
                         <p>下载视频</p>
                     </li>
@@ -189,7 +191,7 @@
     } from 'vant';
     // 引入微信分享
     import wx from "weixin-js-sdk";
-    import {getRandomVideo,getApkUrl,getVersion} from '../serves/main.js'
+    import {getRandomVideo, getApkUrl, getVersion} from '../serves/main.js'
     import {fetch} from '../serves/serves.js'
 
     Vue.use(Swipe, Toast).use(SwipeItem);
@@ -202,18 +204,18 @@
             return {
                 current: 0,
                 current2: 0,
-                bgc:true,
+                bgc: true,
                 videoList: [
-                //     {
-                //     url: 'http://video.jishiyoo.com/3720932b9b474f51a4cf79f245325118/913d4790b8f046bfa1c9a966cd75099f-8ef4af9b34003bd0bc0261cda372521f-ld.mp4',//视频源
-                //     cover: '',//封面
-                //     tag_image: 'http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg',//作者头像
-                //     fabulous: false,//是否赞过
-                //     tagFollow: false,//是否关注过该作者
-                //     author_id: 1,//作者ID
-                //     author:'superKM',
-                //     des:'武汉加油'
-                // },
+                    //     {
+                    //     url: 'http://video.jishiyoo.com/3720932b9b474f51a4cf79f245325118/913d4790b8f046bfa1c9a966cd75099f-8ef4af9b34003bd0bc0261cda372521f-ld.mp4',//视频源
+                    //     cover: '',//封面
+                    //     tag_image: 'http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg',//作者头像
+                    //     fabulous: false,//是否赞过
+                    //     tagFollow: false,//是否关注过该作者
+                    //     author_id: 1,//作者ID
+                    //     author:'superKM',
+                    //     des:'武汉加油'
+                    // },
                 ],
                 isVideoShow: false,
                 playOrPause: false,
@@ -231,11 +233,11 @@
                 commentPlaceholder: '留下你精彩的评论吧',//评论Placeholder
                 replayUserData: '',
                 to_comment_id: '',
-                apkUrl:'',
+                apkUrl: '',
                 videoProcess: 0,//视频播放进度
-                version:105,
-                updateAppUrl:'',
-                isUpdate:false
+                version: 105,
+                updateAppUrl: '',
+                isUpdate: false
             }
         },
         watch: {
@@ -243,12 +245,12 @@
             comment_text(newV, oldV) {
                 newV == '' ? this.canSend = false : this.canSend = true
             },
-            current(newV, oldV){
-                if(newV == this.videoList.length - 1){
+            current(newV, oldV) {
+                if (newV == this.videoList.length - 1) {
                     Toast.loading({
                         message: '加载中...',
                         forbidClick: true,
-                        duration:0
+                        duration: 0
                     });
                     this.setIndex('toast');
                 }
@@ -264,31 +266,52 @@
                 jsApiList: []
             })
         },
-        created(){
+        created() {
             Toast.loading({
                 message: '加载中...',
                 forbidClick: true,
-                duration:0
+                duration: 0
             });
             this.setIndex('toast');
             this.getApkUrl();//获取最新链接
             this.getVersion();//获取版本更新
         },
         methods: {
-            more(){
-                Toast('敬请期待哦~')
+            share() {
+                this.copyUrl(this.apkUrl);
             },
-            //下载视频
-            downVideo(){
-                this.copyUrl(this.videoList[this.current].url);
-                plus.runtime.openURL( this.videoList[this.current].url, (res)=>{
-                    Toast(res)
+            // 创建下载任务
+            createDownload() {
+                Toast.loading({
+                    message: '下载中...',
+                    forbidClick: true,
+                    duration: 0
                 });
-                //console.log(this.videoList[this.current].url);
+                let url = this.videoList[this.current].url
+                let url2 = url.slice(url.indexOf('.mp4')-15);
+                let option = {
+                    filename:'_downloads/'+url2
+                }
+                var dtask = plus.downloader.createDownload(url, option, function (d, status) {
+                    // 下载完成
+                    if (status == 200) {
+                        Toast.clear();
+                        var fileSaveUrl = plus.io.convertLocalFileSystemURL(d.filename);
+                        Toast(`成功保存到${fileSaveUrl}`)
+                        this.copyUrl(fileSaveUrl);
+                    } else {
+                        Toast.clear();
+                        Toast.fail(`保存失败，请重试..`)
+                        plus.downloader.clear();        //清除下载任务
+                        console.log("Download failed: " + status);
+                    }
+                });
+                //dtask.addEventListener("statechanged", onStateChanged, false);
+                dtask.start();
             },
             //获取随机视频
-            getVideo(resolve){
-                let code = Math.random()*99999;
+            getVideo(resolve) {
+                let code = Math.random() * 99999;
                 let obj = {
                     url: '',//视频源
                     cover: '',//封面
@@ -296,19 +319,19 @@
                     fabulous: false,//是否赞过
                     tagFollow: false,//是否关注过该作者
                     author_id: code,//作者ID
-                    author:'superKM',
-                    des:'',
+                    author: 'superKM',
+                    des: '',
                 }
-                getRandomVideo(code).then(res=>{
-                    if(res.request.responseURL){
+                getRandomVideo(code).then(res => {
+                    if (res.request.responseURL) {
                         obj.url = res.request.responseURL
                         this.videoList = this.videoList.concat(obj)
                         console.log(this.videoList);
-                        resolve?resolve():'';
+                        resolve ? resolve() : '';
                     }
-                }).catch(err =>{
-                    if(err){
-                        resolve?this.getVideo(resolve):this.getVideo();
+                }).catch(err => {
+                    if (err) {
+                        resolve ? this.getVideo(resolve) : this.getVideo();
                     }
                 })
             },
@@ -506,7 +529,7 @@
             },
             //改变菜单
             changeTab(index) {
-                if(index == 2){
+                if (index == 2) {
                     Toast.fail('敬请期待哦~')
                 }
                 this.tabIndex = index
@@ -528,48 +551,48 @@
                 //改变的时候 暂停当前播放的视频
                 clearInterval(videoProcessInterval)
                 this.videoProcess = 0;
-                console.log(index,this.current,this.current2);
+                console.log(index, this.current, this.current2);
                 let video = document.querySelectorAll('video')[this.current];
                 video.pause();
                 this.playOrPause = false;
                 this.showShareBox = false;
                 this.current = index;
                 //非ios切换直接自动播放下一个
-                if(!this.isiOS){
+                if (!this.isiOS) {
                     this.isVideoShow = false;
                     setTimeout(() => {
                         this.pauseVideo()
                     }, 100)
-                }else{
+                } else {
                     //ios官方禁止video自动播放，未找到合适的方法，如果您发现了，麻烦告诉我一下谢谢啦
                     this.playOrPause = true;
                     this.iconPlayShow = true;
                 }
                 //预加载下一个视频
-                if(index > this.current2){
-                  this.setIndex();
+                if (index > this.current2) {
+                    this.setIndex();
                 }
             },
-            setIndex(type = '',num = 0){
-                if(type == 'toast'){
+            setIndex(type = '', num = 0) {
+                if (type == 'toast') {
                     let flag = num || 0;
-                    if(flag <= 5){
+                    if (flag <= 5) {
                         new Promise(resolve => {
                             this.getVideo(resolve);
-                        }).then(()=>{
-                            flag === 0?Toast.clear():'';
+                        }).then(() => {
+                            flag === 0 ? Toast.clear() : '';
                             this.bgc = false;
                             flag++;
                             this.current2 = this.current;
                             let videoLast = document.querySelectorAll('video')[this.videoList.length - 1];
                             videoLast.pause();
-                            this.setIndex('toast',flag);
+                            this.setIndex('toast', flag);
                         })
                     }
-                }else {
+                } else {
                     new Promise(resolve => {
                         this.getVideo(resolve);
-                    }).then(()=>{
+                    }).then(() => {
                         this.current2 = this.current;
                         let videoLast = document.querySelectorAll('video')[this.videoList.length - 1];
                         videoLast.pause();
@@ -608,13 +631,13 @@
                         // })
                         video.play();
                         video.pause();
-                        setTimeout(()=>{
+                        setTimeout(() => {
                             video.play();
                             this.iconPlayShow = false;
                             videoProcessInterval = setInterval(() => {
                                 this.changeProcess(video)
                             }, 100)
-                        },100)
+                        }, 100)
                     }
                     this.playOrPause = !this.playOrPause;
                     this.showShareBox = false;
@@ -635,17 +658,17 @@
                 this.isVideoShow = false
                 this.current += this.current
             },
-            getApkUrl(){
-                getApkUrl().then(res =>{
+            getApkUrl() {
+                getApkUrl().then(res => {
                     let result = res.data.data;
-                    if(result.status === 200){
+                    if (result.status === 200) {
                         this.apkUrl = result.link;
                     }
                 })
             },
             //复制当前链接
             copyUrl(url) {
-                let httpUrl = url || this.apkUrl;
+                let httpUrl = url;
                 var oInput = document.createElement('input');
                 oInput.value = httpUrl;
                 document.body.appendChild(oInput);
@@ -653,16 +676,16 @@
                 document.execCommand("Copy"); // 执行浏览器复制命令
                 oInput.className = 'oInput';
                 oInput.style.display = 'none';
-                alert("链接复制成功")
+                Toast("链接复制成功")
             },
-            getVersion(){
+            getVersion() {
                 let options = {
-                    version:this.version,
-                    appName:'version_MY'
+                    version: this.version,
+                    appName: 'version_MY'
                 }
-                getVersion(options).then(res =>{
+                getVersion(options).then(res => {
                     let result = res.data.data;
-                    if(res.data.status === 200 && result.flag){
+                    if (res.data.status === 200 && result.flag) {
                         this.updateAppUrl = result.link;
                         this.isUpdate = true;
                     }
@@ -670,12 +693,12 @@
             },
             //复制当前链接
             UpdateApp() {
-                if(this.isUpdate){
+                if (this.isUpdate) {
                     this.copyUrl(this.updateAppUrl);
-                    plus.runtime.openURL(this.updateAppUrl, (res)=>{
+                    plus.runtime.openURL(this.updateAppUrl, (res) => {
                         Toast(res)
                     });
-                }else {
+                } else {
                     Toast('已是最新版本哦~')
                 }
             }
@@ -686,14 +709,14 @@
     .clear {
         clear: both;
     }
-    .back_i{
+
+    .back_i {
         position: fixed;
         top: 20px;
         left: 10px;
         width: 28px;
         z-index: 10;
     }
-
 
     .video-player {
         height: 100vh;
@@ -1046,17 +1069,19 @@
         text-align: center;
         position: relative;
 
-        .new{
+        .new {
             position: absolute;
             top: 0;
             right: 15px;
-            width: 30px;height: 30px;
+            width: 30px;
+            height: 30px;
         }
     }
 
     .share_li i {
         font-size: 44px;
     }
+
     .share_li p {
         margin: 5px auto;
         font-size: 14px;
