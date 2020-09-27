@@ -292,13 +292,14 @@
                 let option = {
                     filename:'_downloads/'+url2
                 }
+                let that = this;
                 var dtask = plus.downloader.createDownload(url, option, function (d, status) {
                     // 下载完成
                     if (status == 200) {
                         Toast.clear();
                         var fileSaveUrl = plus.io.convertLocalFileSystemURL(d.filename);
-                        Toast(`成功保存到${fileSaveUrl}`)
-                        this.copyUrl(fileSaveUrl);
+                        Toast(`已成功保存到本地，链接复制成功！`)
+                        that.copyUrl(`保存本地地址：${fileSaveUrl}，下载地址：${url}`,false);
                     } else {
                         Toast.clear();
                         Toast.fail(`保存失败，请重试..`)
@@ -325,12 +326,14 @@
                 getRandomVideo(code).then(res => {
                     if (res.request.responseURL) {
                         obj.url = res.request.responseURL
-                        this.videoList = this.videoList.concat(obj)
-                        console.log(this.videoList);
+                        //this.videoList = this.videoList.concat(obj)
+                        this.videoList.push(obj);
+                        //console.log(this.videoList);
                         resolve ? resolve() : '';
                     }
                 }).catch(err => {
                     if (err) {
+                        console.log(err);
                         resolve ? this.getVideo(resolve) : this.getVideo();
                     }
                 })
@@ -580,6 +583,7 @@
                         new Promise(resolve => {
                             this.getVideo(resolve);
                         }).then(() => {
+                            console.log(flag);
                             flag === 0 ? Toast.clear() : '';
                             this.bgc = false;
                             flag++;
@@ -587,6 +591,8 @@
                             let videoLast = document.querySelectorAll('video')[this.videoList.length - 1];
                             videoLast.pause();
                             this.setIndex('toast', flag);
+                        }).catch(err=>{
+                            console.log("sasa");
                         })
                     }
                 } else {
@@ -667,7 +673,7 @@
                 })
             },
             //复制当前链接
-            copyUrl(url) {
+            copyUrl(url,type = true) {
                 let httpUrl = url;
                 var oInput = document.createElement('input');
                 oInput.value = httpUrl;
@@ -676,7 +682,7 @@
                 document.execCommand("Copy"); // 执行浏览器复制命令
                 oInput.className = 'oInput';
                 oInput.style.display = 'none';
-                Toast("链接复制成功")
+                type?Toast("链接复制成功"):'';
             },
             getVersion() {
                 let options = {

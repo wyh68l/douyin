@@ -1,4 +1,5 @@
 import axios from 'axios'
+import Vue from 'vue'
 //import Qs from 'qs'
 
 // axios({
@@ -16,12 +17,13 @@ import axios from 'axios'
 //const NewTimeStamp = new Date().getTime()
 
 // axios全局设置
+Vue.prototype.axios = axios;
 const Axios = axios.create({
-  timeout: 6000,
+  // timeout: 4000,
   responseType: 'json'
 })
-
-axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8'
+Axios.defaults.timeout = 6500;
+Axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8'
 
 //划重点！ 由于微信小程序需要用微信官方请求接口，因此需要用adapter自定义
 //`adapter` 允许自定义处理请求，以使测试更轻松,返回一个 promise 并应用一个有效的响应
@@ -53,7 +55,7 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 // axios请求拦截
 Axios.interceptors.request.use(
   config => {
-      console.log(config);
+      //console.log(config);
     // 若是有做鉴权token , 就给头部带上token
     // let token = window.sessionStorage.getItem(__TOKEN_KEY__)
     // if (token) {
@@ -62,7 +64,7 @@ Axios.interceptors.request.use(
     return config
   },
   error => {
-      console.log(error);
+      //console.log(error);
     return Promise.reject(error.data)
   }
 )
