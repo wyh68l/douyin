@@ -3,7 +3,7 @@
         <!--<a href="">-->
         <!--<img src="http://npjy.oss-cn-beijing.aliyuncs.com/images/file-15807175142891GIFp.png" class="back_i" alt="">-->
         <!--</a>-->
-        <img src="../assets/dio.jpg" alt="" style="width: 100%;height: 100%;" v-if="bgc">
+        <img src="../assets/dio.jpg" alt="" style="width: 100%;height: 100%;position: absolute;top: 0;left: 0;z-index: 999;" v-if="bgc">
         <div class="van_swipe">
             <!--vant van-swipe 滑动组件 -->
             <van-swipe :initial-swipe="current2" :show-indicators="false" @change="onChange" vertical :loop="false"
@@ -180,6 +180,11 @@
                 </div>
             </div>
         </div>
+
+        <!--通知栏-->
+        <van-dialog v-model="MessageObj.flag" title="" show-cancel-button :confirm-button-text="MessageObj.type=='news'?'知道啦':'下载啦'" @confirm="confirm">
+            <div v-html="MessageObj.msg"></div>
+        </van-dialog>
     </div>
 </template>
 <script>
@@ -191,7 +196,7 @@
     } from 'vant';
     // 引入微信分享
     import wx from "weixin-js-sdk";
-    import {getRandomVideo, getApkUrl, getVersion} from '../serves/main.js'
+    import {getRandomVideo, getApkUrl, getVersion,getMessage} from '../serves/main.js'
     import {fetch} from '../serves/serves.js'
 
     Vue.use(Swipe, Toast).use(SwipeItem);
@@ -206,16 +211,16 @@
                 current2: 0,
                 bgc: true,
                 videoList: [
-                    //     {
-                    //     url: 'http://video.jishiyoo.com/3720932b9b474f51a4cf79f245325118/913d4790b8f046bfa1c9a966cd75099f-8ef4af9b34003bd0bc0261cda372521f-ld.mp4',//视频源
-                    //     cover: '',//封面
-                    //     tag_image: 'http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg',//作者头像
-                    //     fabulous: false,//是否赞过
-                    //     tagFollow: false,//是否关注过该作者
-                    //     author_id: 1,//作者ID
-                    //     author:'superKM',
-                    //     des:'武汉加油'
-                    // },
+                        {
+                        url: 'http://video.jishiyoo.com/3720932b9b474f51a4cf79f245325118/913d4790b8f046bfa1c9a966cd75099f-8ef4af9b34003bd0bc0261cda372521f-ld.mp4',//视频源
+                        cover: '',//封面
+                        tag_image: 'http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg',//作者头像
+                        fabulous: false,//是否赞过
+                        tagFollow: false,//是否关注过该作者
+                        author_id: 1,//作者ID
+                        author:'superKM',
+                        des:'武汉加油'
+                    },
                 ],
                 isVideoShow: false,
                 playOrPause: false,
@@ -237,7 +242,8 @@
                 videoProcess: 0,//视频播放进度
                 version: 105,
                 updateAppUrl: '',
-                isUpdate: false
+                isUpdate: false,
+                MessageObj:{}
             }
         },
         watch: {
@@ -275,10 +281,29 @@
             this.setIndex('toast');
             this.getApkUrl();//获取最新链接
             this.getVersion();//获取版本更新
+            this.getMessage();//获取推送消息
         },
         methods: {
+            confirm(){
+                if(this.MessageObj.type === 'update'){
+                    this.copyUrl(this.MessageObj.down);
+                    plus.runtime.openURL(this.MessageObj.down, ()=>{
+                        Toast('唤起浏览器失败，请将复制的下载路径粘贴到浏览器下载哦~')
+                    });
+                }
+            },
             share() {
                 this.copyUrl(this.apkUrl);
+            },
+            getMessage(){
+                getMessage({type:'MY'}).then(res=>{
+                    let result = res.data;
+                    if(result.status === 200){
+                        this.MessageObj = result.data;
+                    }else {
+                        Toast(result.data.msg)
+                    }
+                })
             },
             // 创建下载任务
             createDownload() {
@@ -298,8 +323,9 @@
                     if (status == 200) {
                         Toast.clear();
                         var fileSaveUrl = plus.io.convertLocalFileSystemURL(d.filename);
-                        Toast(`已成功保存到本地，链接复制成功！`)
-                        that.copyUrl(`保存本地地址：${fileSaveUrl}，下载地址：${url}`,false);
+                        alert(`已保存到本地：${fileSaveUrl}`);
+                        //Toast(`已成功保存到本地，链接复制成功！`)
+                        //that.copyUrl(`保存本地地址：${fileSaveUrl}，下载地址：${url}`,false);
                     } else {
                         Toast.clear();
                         Toast.fail(`保存失败，请重试..`)
@@ -667,13 +693,14 @@
             getApkUrl() {
                 getApkUrl().then(res => {
                     let result = res.data.data;
-                    if (result.status === 200) {
+                    if (res.data.status === 200) {
                         this.apkUrl = result.link;
                     }
                 })
             },
             //复制当前链接
             copyUrl(url,type = true) {
+                console.log(url);
                 let httpUrl = url;
                 var oInput = document.createElement('input');
                 oInput.value = httpUrl;

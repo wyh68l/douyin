@@ -37,6 +37,16 @@ export function getVersion(data) {
   })
 }
 
+//获取通知消息
+export function getMessage(data) {
+    return fetch({
+        url:'http://47.97.104.206:3000/app/message',
+        // url:'/api/app/version',
+        method:'get',
+        params:data
+    })
+}
+
 
 /*--------------首页mock模拟的接口2.0----------------*/
 
