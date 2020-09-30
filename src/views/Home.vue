@@ -183,7 +183,7 @@
 
         <!--通知栏-->
         <van-dialog v-model="MessageObj.flag" title="" show-cancel-button :confirm-button-text="MessageObj.type=='news'?'知道啦':'下载啦'" @confirm="confirm">
-            <div v-html="MessageObj.msg"></div>
+            <div v-html="MessageObj.msg" class="message"></div>
         </van-dialog>
     </div>
 </template>
@@ -228,16 +228,16 @@
                 current2: 0,
                 bgc: false,
                 videoList: [
-                        {
-                        url: 'http://video.jishiyoo.com/3720932b9b474f51a4cf79f245325118/913d4790b8f046bfa1c9a966cd75099f-8ef4af9b34003bd0bc0261cda372521f-ld.mp4',//视频源
-                        cover: '',//封面
-                        tag_image: 'http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg',//作者头像
-                        fabulous: false,//是否赞过
-                        tagFollow: false,//是否关注过该作者
-                        author_id: 1,//作者ID
-                        author:'superKM',
-                        des:'武汉加油'
-                    },
+                    //     {
+                    //     url: 'http://video.jishiyoo.com/3720932b9b474f51a4cf79f245325118/913d4790b8f046bfa1c9a966cd75099f-8ef4af9b34003bd0bc0261cda372521f-ld.mp4',//视频源
+                    //     cover: '',//封面
+                    //     tag_image: 'http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg',//作者头像
+                    //     fabulous: false,//是否赞过
+                    //     tagFollow: false,//是否关注过该作者
+                    //     author_id: 1,//作者ID
+                    //     author:'superKM',
+                    //     des:'武汉加油'
+                    // },
                 ],
                 isVideoShow: false,
                 playOrPause: false,
@@ -272,7 +272,7 @@
                 to_comment_id: '',
                 apkUrl: '',
                 videoProcess: 0,//视频播放进度
-                version: 105,
+                version: 106,
                 updateAppUrl: '',
                 isUpdate: false,
                 MessageObj:{}
@@ -735,6 +735,12 @@
     }
 </script>
 <style scoped lang="scss">
+    .message{
+        padding: 20px 0;
+        ::v-deep p{
+            margin: 5px auto;
+        }
+    }
     .clear {
         clear: both;
     }
