@@ -101,17 +101,17 @@
                 <div class="share_cancel" @click="cancelShare">取消</div>
             </div>
             <!--留言弹窗-->
-            <van-popup v-model="commentPop" closeable :overlay="true" class="comment_container" position="bottom">
+            <van-popup v-model="commentPop" closeable :overlay="true" class="comment_container" position="bottom" @click="clearStatus">
                 <div class="comment_box">
                     <div class="comment_top">
                         12.5w条评论
-                        <i class="iconfont icon-guanbi1 guanbi3" @click="closeComment"></i>
+                        <i class="iconfont icon-guanbi1 guanbi3" @click.stop="closeComment"></i>
                     </div>
                     <ul class="comment_ul">
                         <div v-if="videoComment.length!=0">
                             <transition-group appear>
                                 <li class="comment_li" v-for="(item,index) in videoComment" :key="index"
-                                    @click="replayUser(item,index,-1)">
+                                    @click.stop="replayUser(item,index,-1)">
                                     <div class="comment_author_left">
                                         <img :src="item.avatar">
                                     </div>
@@ -202,6 +202,23 @@
     Vue.use(Swipe, Toast).use(SwipeItem);
 
     let videoProcessInterval;
+
+
+    /*websock聊天室*/
+    let that;
+    const WS = new WebSocket('ws://47.97.104.206:3030');
+
+    //onopen一旦你连接服务端成功就调用的钩子函数
+    WS.onopen = function () {
+        //ws.send('已经连接上咯');//send可以给服务端推送消息
+        //that.sendComment(WS);
+    }
+
+    //接收服务端推送的消息
+    WS.onmessage = function (e) {
+        that.getComment(e.data);
+    }
+
     export default {
         name: 'home',
         data() {
@@ -209,7 +226,7 @@
             return {
                 current: 0,
                 current2: 0,
-                bgc: true,
+                bgc: false,
                 videoList: [
                         {
                         url: 'http://video.jishiyoo.com/3720932b9b474f51a4cf79f245325118/913d4790b8f046bfa1c9a966cd75099f-8ef4af9b34003bd0bc0261cda372521f-ld.mp4',//视频源
@@ -234,7 +251,22 @@
                 // 评论相关
                 comment_text: '',//评论输入内容
                 canSend: false,//是否可以发送
-                videoComment: [],
+                videoComment: [{
+                    "comment_id": 297,
+                    "p_id": 0,
+                    "comment_content": "大家好！欢迎体验聊天室！在这里大家可以相互聊天交流，不过我想大家都是遵纪守法的靓仔与靓妹，" +
+                        "请遵守法律与道德的规则，不能开车！要不然软件凉了，咱们也就不能相聚了，谢谢大家~",
+                    "love_count": 0,
+                    "create_time": "过去的某一刻",
+                    "user_id": 78634,
+                    "nickname": "平平无奇少年郎\uD83C\uDF1F",
+                    "avatar": require('../assets/img.jpg'),
+                    "be_commented_user_id": 0,
+                    "be_commented_nickname": "",
+                    "be_commented_avatar": "",
+                    "child_comment": [],
+                    "love_comment": false
+                }],
                 commentPlaceholder: '留下你精彩的评论吧',//评论Placeholder
                 replayUserData: '',
                 to_comment_id: '',
@@ -273,18 +305,20 @@
             })
         },
         created() {
-            Toast.loading({
-                message: '加载中...',
-                forbidClick: true,
-                duration: 0
-            });
-            this.setIndex('toast');
+            that = this;
+            // Toast.loading({
+            //     message: '加载中...',
+            //     forbidClick: true,
+            //     duration: 0
+            // });
+           // this.setIndex('toast');
             this.getApkUrl();//获取最新链接
             this.getVersion();//获取版本更新
-            this.getMessage();//获取推送消息
+           // this.getMessage();//获取推送消息
         },
         methods: {
             confirm(){
+                console.log('sas');
                 if(this.MessageObj.type === 'update'){
                     this.copyUrl(this.MessageObj.down);
                     plus.runtime.openURL(this.MessageObj.down, ()=>{
@@ -364,59 +398,37 @@
                     }
                 })
             },
+            //清除评论他人状态
+            clearStatus(){
+                this.commentPlaceholder = '留下你精彩的评论吧';
+            },
             //获取评论
-            getComment() {
-                //setTimeout模拟Ajax请求
-                setTimeout(() => {
-                    let data = [{
-                        "comment_id": 297,
-                        "p_id": 0,
-                        "comment_content": "你好，我叫DIO",
-                        "love_count": 0,
-                        "create_time": "1月前",
-                        "user_id": 78634,
-                        "nickname": "砸瓦鲁多\uD83C\uDF1F",
-                        "avatar": "http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg",
-                        "be_commented_user_id": 0,
-                        "be_commented_nickname": "",
-                        "be_commented_avatar": "",
-                        "child_comment": [{
-                            "comment_id": 298,
-                            "p_id": 296,
-                            "comment_content": "木大木大木大木大",
-                            "love_count": 1,
-                            "create_time": "7天前",
-                            "user_id": 55163,
-                            "nickname": "DIO",
-                            "avatar": "http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTKPJb1k8zia02PjVibdaDJ83JIDGm0hIsY34kAlXyZMT6FMBibdw6rhdPPjpxtp6d8B75x5Kpicxp2gqw/132",
-                            "be_commented_user_id": 78480,
-                            "be_commented_nickname": "chenchen",
-                            "be_commented_avatar": "http://thirdwx.qlogo.cn/mmopen/vi_32/icxHc0Ym1p4hQAFAUnjpxDPMkEUyojnibBj9wUSS2OmibiazdBAicSLpoicricVYP6QG6XicjTzQPx9koMPqcGfhTOy5qA/132",
-                            "love_comment": true
-                        },],
-                        "love_comment": false
-                    }, {
-                        "comment_id": 281,
-                        "p_id": 0,
-                        "comment_content": "楼主好帅，我要嫁给你！！",
-                        "love_count": 0,
-                        "create_time": "1月前",
-                        "user_id": 74164,
-                        "nickname": "冰雪奇缘2",
-                        "avatar": "http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449298299M3V50.jpg",
-                        "be_commented_user_id": 0,
-                        "be_commented_nickname": "",
-                        "be_commented_avatar": "",
-                        "child_comment": [],
-                        "love_comment": false
-                    }];//获取评论数据
-                    this.videoComment = [...this.videoComment, ...data];
-                    let to_comment_id = this.to_comment_id;
-                    if (to_comment_id != 0) {
-                        //从评论列表进来回复
-                        this.getCommentDetail(to_comment_id);
+            getComment(obj) {
+                let tempObj = JSON.parse(obj)
+                console.log(tempObj);
+                //let newData = [tempObj];//获取评论数据
+
+                if (this.replayUserData == '') {
+                    //回复作品
+                    this.videoComment.push(tempObj);
+                } else {
+                    let index = this.replayUserData.index;
+                    let index2 = this.replayUserData.index2;
+                    if (this.replayUserData.index2 == -1) {
+                        //回复一级人
+                        this.videoComment[index].child_comment.push(tempObj)
+                    } else {
+                        //回复二级人
+                        this.videoComment[index].child_comment.splice(index2, 0, tempObj)
                     }
-                }, 500)
+                }
+                let to_comment_id = this.to_comment_id;
+                if (to_comment_id != 0) {
+                    //从评论列表进来回复
+                    this.getCommentDetail(to_comment_id);
+                }
+                this.replayUserData = '';
+                this.isSending = false;
             },
             //获取单个评论
             getCommentDetail(to_comment_id) {
@@ -465,36 +477,20 @@
             sendComment(comment_id, p_id, p_user_id, content) {
                 this.comment_text = '';
                 this.isSending = true;
-                setTimeout(() => {
-                    let newData = {
-                        "comment_id": comment_id,
-                        "p_id": p_id,
-                        "comment_content": content,
-                        "love_count": 0,
-                        "create_time": "刚刚",
-                        "user_id": p_user_id,
-                        "nickname": "游客",//当前用户
-                        "avatar": 'https://profile.csdnimg.cn/B/1/E/3_ridingfish',//当前用户头像
-                        "be_commented_user_id": this.replayUserData.user_id,
-                        "be_commented_nickname": this.replayUserData.nickname,
-                    }
-                    if (this.replayUserData == '') {
-                        //回复作品
-                        this.videoComment.splice(0, 0, newData)
-                    } else {
-                        let index = this.replayUserData.index;
-                        let index2 = this.replayUserData.index2;
-                        if (this.replayUserData.index2 == -1) {
-                            //回复一级人
-                            this.videoComment[index].child_comment.splice(0, 0, newData)
-                        } else {
-                            //回复二级人
-                            this.videoComment[index].child_comment.splice(index2, 0, newData)
-                        }
-                    }
-                    this.replayUserData = '';
-                    this.isSending = false;
-                }, 500)
+                let newData = {
+                    "comment_id": comment_id,
+                    "p_id": p_id,
+                    "comment_content": content,
+                    "love_count": 0,
+                    "create_time": "刚刚",
+                    "user_id": p_user_id,
+                    "nickname": "游客",//当前用户
+                    "avatar": require('../assets/img.jpg'),//当前用户头像
+                    "be_commented_user_id": this.replayUserData.user_id,
+                    "be_commented_nickname": this.replayUserData.nickname,
+                    'child_comment':[]
+                }
+                WS.send(JSON.stringify(newData));
             },
             //评论点赞
             commentLove(item, index, index2) {
@@ -541,8 +537,8 @@
             //弹出评论窗口
             changeComment() {
                 this.commentPop = true;
-                this.videoComment = [];
-                this.getComment()
+                //this.videoComment = [];
+                //this.getComment()
             },
             //关闭评论弹窗
             closeComment() {
@@ -1349,12 +1345,12 @@
 
     .v-enter-active,
     .v-leave-active {
-        transition: all .5s ease;
+        /*transition: all .5s ease;*/
     }
 
     /*添加进场效果*/
     .v-move {
-        transition: all 1s ease;
+        /*transition: all 1s ease;*/
     }
 
     .v-leave-active {
@@ -1362,7 +1358,7 @@
     }
 
     .list-complete-item {
-        transition: all 1s;
+        /*transition: all 1s;*/
         display: inline-block;
         margin-right: 10px;
     }
