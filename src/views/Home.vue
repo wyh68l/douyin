@@ -172,7 +172,7 @@
             <div class="comment_input_box_hover"></div>
             <div class="comment_input_box" v-show="commentPop">
                 <!--<form action="#" class="comment_form">-->
-                <input :placeholder="commentPlaceholder" class="comment_input" v-model="comment_text" ref="content"
+                <input :placeholder="commentPlaceholder" class="comment_input" v-model="comment_text" ref="content" :disabled="isInput"
                        @keyup.enter="checkComment"/>
                 <!--</form>-->
                 <div class="comment_input_right" @click="checkComment">
@@ -182,7 +182,7 @@
         </div>
 
         <!--通知栏-->
-        <van-dialog v-model="MessageObj.flag" title="" show-cancel-button :confirm-button-text="MessageObj.type=='news'?'知道啦':'下载啦'" @confirm="confirm">
+        <van-dialog v-model="MessageObj.flag" title="" show-cancel-button :confirm-button-text="isUpdate?'下载啦':'知道啦'" @confirm="confirm">
             <div v-html="MessageObj.msg" class="message"></div>
         </van-dialog>
     </div>
@@ -197,6 +197,7 @@
     // 引入微信分享
     import wx from "weixin-js-sdk";
     import {getRandomVideo, getApkUrl, getVersion,getMessage} from '../serves/main.js'
+    import {plusReady} from '../tools/index'
     import {fetch} from '../serves/serves.js'
 
     Vue.use(Swipe, Toast).use(SwipeItem);
@@ -218,15 +219,20 @@
     WS.onmessage = function (e) {
         that.getComment(e.data);
     }
+    WS.onerror = function () {
+        that.commentPlaceholder = '聊天室暂时关闭，请等待开放~';
+        that.isInput = true;
+    }
 
     export default {
         name: 'home',
         data() {
             let u = navigator.userAgent;
             return {
+                isInput:false,
                 current: 0,
                 current2: 0,
-                bgc: false,
+                bgc: true,
                 videoList: [
                     //     {
                     //     url: 'http://video.jishiyoo.com/3720932b9b474f51a4cf79f245325118/913d4790b8f046bfa1c9a966cd75099f-8ef4af9b34003bd0bc0261cda372521f-ld.mp4',//视频源
@@ -260,7 +266,7 @@
                     "create_time": "过去的某一刻",
                     "user_id": 78634,
                     "nickname": "平平无奇少年郎\uD83C\uDF1F",
-                    "avatar": require('../assets/img.jpg'),
+                    "avatar": require('../assets/nm0.jpg'),
                     "be_commented_user_id": 0,
                     "be_commented_nickname": "",
                     "be_commented_avatar": "",
@@ -272,10 +278,11 @@
                 to_comment_id: '',
                 apkUrl: '',
                 videoProcess: 0,//视频播放进度
-                version: 106,
+                version: 108,
                 updateAppUrl: '',
                 isUpdate: false,
-                MessageObj:{}
+                MessageObj:{},
+                isChange:false
             }
         },
         watch: {
@@ -306,20 +313,20 @@
         },
         created() {
             that = this;
-            // Toast.loading({
-            //     message: '加载中...',
-            //     forbidClick: true,
-            //     duration: 0
-            // });
-           // this.setIndex('toast');
+            Toast.loading({
+                message: '加载中...',
+                forbidClick: true,
+                duration: 0
+            });
+           this.setIndex('toast');
             this.getApkUrl();//获取最新链接
             this.getVersion();//获取版本更新
-           // this.getMessage();//获取推送消息
+            plusReady();
         },
         methods: {
             confirm(){
-                console.log('sas');
-                if(this.MessageObj.type === 'update'){
+                // console.log('sas');
+                if(this.MessageObj.type === 'update' && this.isUpdate){
                     this.copyUrl(this.MessageObj.down);
                     plus.runtime.openURL(this.MessageObj.down, ()=>{
                         Toast('唤起浏览器失败，请将复制的下载路径粘贴到浏览器下载哦~')
@@ -334,6 +341,7 @@
                     let result = res.data;
                     if(result.status === 200){
                         this.MessageObj = result.data;
+                        this.videoComment[0].comment_content = result.data.ws_msg;
                     }else {
                         Toast(result.data.msg)
                     }
@@ -371,8 +379,9 @@
                 dtask.start();
             },
             //获取随机视频
-            getVideo(resolve) {
+            getVideo(resolve,) {
                 let code = Math.random() * 99999;
+                let type = 'MY'
                 let obj = {
                     url: '',//视频源
                     cover: '',//封面
@@ -383,14 +392,47 @@
                     author: 'superKM',
                     des: '',
                 }
-                getRandomVideo(code).then(res => {
-                    if (res.request.responseURL) {
-                        obj.url = res.request.responseURL
-                        //this.videoList = this.videoList.concat(obj)
+                getRandomVideo({type}).then(res => {
+                    let result = res.data;
+                    if (result.status === 200) {
+                        obj.url = result.data.url;
                         this.videoList.push(obj);
-                        //console.log(this.videoList);
+                        // console.log(res);
                         resolve ? resolve() : '';
+                    }else {
+                        resolve ? this.getVideo(resolve) : this.getVideo();
                     }
+                    // if (res.request.responseURL) {
+                    //     obj.url = res.request.responseURL
+                    //     //this.videoList = this.videoList.concat(obj)
+                    //     this.videoList.push(obj);
+                    //     //console.log(this.videoList);
+                    //     resolve ? resolve() : '';
+                    // }
+                }).catch(err => {
+                    if (err) {
+                        console.log(err);
+                        resolve ? this.getVideo(resolve) : this.getVideo();
+                    }
+                })
+
+                getRandomVideo({type}).then(res => {
+                    let result = res.data;
+                    if (result.status === 200) {
+                        obj.url = result.data.url;
+                        this.videoList.push(obj);
+                        // console.log(res);
+                        resolve ? resolve() : '';
+                    }else {
+                        resolve ? this.getVideo(resolve) : this.getVideo();
+                    }
+                    // if (res.request.responseURL) {
+                    //     obj.url = res.request.responseURL
+                    //     //this.videoList = this.videoList.concat(obj)
+                    //     this.videoList.push(obj);
+                    //     //console.log(this.videoList);
+                    //     resolve ? resolve() : '';
+                    // }
                 }).catch(err => {
                     if (err) {
                         console.log(err);
@@ -405,7 +447,7 @@
             //获取评论
             getComment(obj) {
                 let tempObj = JSON.parse(obj)
-                console.log(tempObj);
+                // console.log(tempObj);
                 //let newData = [tempObj];//获取评论数据
 
                 if (this.replayUserData == '') {
@@ -473,10 +515,14 @@
                     this.sendComment(comment_id, p_id, p_user_id, content)
                 }
             },
+            getRandomInt(min,max){
+                return Math.floor(Math.random()*(max-min+1))+min;
+            },
             //发送评论
             sendComment(comment_id, p_id, p_user_id, content) {
                 this.comment_text = '';
                 this.isSending = true;
+                let num = this.getRandomInt(1,4);
                 let newData = {
                     "comment_id": comment_id,
                     "p_id": p_id,
@@ -485,7 +531,7 @@
                     "create_time": "刚刚",
                     "user_id": p_user_id,
                     "nickname": "游客",//当前用户
-                    "avatar": require('../assets/img.jpg'),//当前用户头像
+                    "avatar": require('../assets/nm'+num+'.jpg'),//当前用户头像
                     "be_commented_user_id": this.replayUserData.user_id,
                     "be_commented_nickname": this.replayUserData.nickname,
                     'child_comment':[]
@@ -573,6 +619,7 @@
             },
             //滑动改变播放的视频
             onChange(index) {
+                if(this.isChange)return;
                 //改变的时候 暂停当前播放的视频
                 clearInterval(videoProcessInterval)
                 this.videoProcess = 0;
@@ -595,7 +642,9 @@
                 }
                 //预加载下一个视频
                 if (index > this.current2) {
-                    this.setIndex();
+                    setTimeout(()=>{
+                        this.setIndex();
+                    },400)
                 }
             },
             setIndex(type = '', num = 0) {
@@ -621,6 +670,8 @@
                     new Promise(resolve => {
                         this.getVideo(resolve);
                     }).then(() => {
+                        // this.isChange = true;
+                        // this.$refs.swiper.next();
                         this.current2 = this.current;
                         let videoLast = document.querySelectorAll('video')[this.videoList.length - 1];
                         videoLast.pause();
@@ -717,7 +768,10 @@
                     if (res.data.status === 200 && result.flag) {
                         this.updateAppUrl = result.link;
                         this.isUpdate = true;
+                    }else {
+                        this.isUpdate = false;
                     }
+                    this.getMessage();//获取推送消息
                 })
             },
             //复制当前链接
