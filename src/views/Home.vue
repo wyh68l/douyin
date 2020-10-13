@@ -66,19 +66,11 @@
                     </div>
                 </van-swipe-item>
             </van-swipe>
+
             <!--底部操作栏-->
-            <div class="container_bottom">
-                <div class="border_progress" :style="'width:'+videoProcess+'%'"></div>
-                <div class="bottom_tab" :class="tabIndex==0?'tab_active':''" @click="changeTab(0)">
-                    <span class="bottom_tab_span ">首页</span>
-                </div>
-                <div class="bottom_tab" :class="tabIndex==1?'tab_active':''" @click="changeTab(1)">
-                    <img src="http://oss.jishiyoo.com/images/file-1575427746903.png" alt="" class="bottom_tab_icon">
-                </div>
-                <div class="bottom_tab" :class="tabIndex==2?'tab_active':''" @click="changeTab(2)">
-                    <span class="bottom_tab_span">我的</span>
-                </div>
-            </div>
+            <Footer :videoProcess="videoProcess" ></Footer>
+            <!--底部操作栏-->
+
             <!--分享弹框-->
             <div class="share_box" :class="showShareBox?'share_active':''">
                 <div class="share_tips">分享到</div>
@@ -103,8 +95,8 @@
             <!--留言弹窗-->
             <van-popup v-model="commentPop" closeable :overlay="true" class="comment_container" position="bottom" @click="clearStatus">
                 <div class="comment_box">
-                    <div class="comment_top">
-                        12.5w条评论
+                    <div class="comment_top" style="color: red;">
+                        当前在线人数：{{currentNum}}
                         <i class="iconfont icon-guanbi1 guanbi3" @click.stop="closeComment"></i>
                     </div>
                     <ul class="comment_ul">
@@ -197,6 +189,7 @@
     // 引入微信分享
     import wx from "weixin-js-sdk";
     import {getRandomVideo, getApkUrl, getVersion,getMessage} from '../serves/main.js'
+    import Footer from '../component/Footer'
     import {fetch} from '../serves/serves.js'
 
     Vue.use(Swipe, Toast).use(SwipeItem);
@@ -221,6 +214,7 @@
 
     export default {
         name: 'home',
+        components:{Footer},
         data() {
             let u = navigator.userAgent;
             return {
@@ -228,16 +222,16 @@
                 current2: 0,
                 bgc: false,
                 videoList: [
-                    //     {
-                    //     url: 'http://video.jishiyoo.com/3720932b9b474f51a4cf79f245325118/913d4790b8f046bfa1c9a966cd75099f-8ef4af9b34003bd0bc0261cda372521f-ld.mp4',//视频源
-                    //     cover: '',//封面
-                    //     tag_image: 'http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg',//作者头像
-                    //     fabulous: false,//是否赞过
-                    //     tagFollow: false,//是否关注过该作者
-                    //     author_id: 1,//作者ID
-                    //     author:'superKM',
-                    //     des:'武汉加油'
-                    // },
+                        {
+                        url: 'http://video.jishiyoo.com/3720932b9b474f51a4cf79f245325118/913d4790b8f046bfa1c9a966cd75099f-8ef4af9b34003bd0bc0261cda372521f-ld.mp4',//视频源
+                        cover: '',//封面
+                        tag_image: 'http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg',//作者头像
+                        fabulous: false,//是否赞过
+                        tagFollow: false,//是否关注过该作者
+                        author_id: 1,//作者ID
+                        author:'superKM',
+                        des:'武汉加油'
+                    },
                 ],
                 isVideoShow: false,
                 playOrPause: false,
@@ -275,7 +269,8 @@
                 version: 106,
                 updateAppUrl: '',
                 isUpdate: false,
-                MessageObj:{}
+                MessageObj:{},
+                currentNum:0,//当前在线人数
             }
         },
         watch: {
@@ -406,6 +401,10 @@
             getComment(obj) {
                 let tempObj = JSON.parse(obj)
                 console.log(tempObj);
+                if(tempObj.type === 'num'){
+                    this.currentNum = tempObj.num;
+                    return;
+                }
                 //let newData = [tempObj];//获取评论数据
 
                 if (this.replayUserData == '') {
@@ -551,13 +550,6 @@
                 this.videoList.map(v => {
                     v.author_id == item.author_id ? v.tagFollow = true : '';
                 })
-            },
-            //改变菜单
-            changeTab(index) {
-                if (index == 2) {
-                    Toast.fail('敬请期待哦~')
-                }
-                this.tabIndex = index
             },
             //改变收藏状态
             changeFabulous(item, index) {
@@ -972,7 +964,7 @@
         position: fixed;
         bottom: 0;
         width: 100%;
-        //background: rgba(0, 0, 0, 0.85);
+        /*background: rgba(0, 0, 0, 0.85);*/
         height: 48px;
         /*border-top: 1px solid rgba(255, 255, 255, 0.7);*/
         max-width: 550px;
