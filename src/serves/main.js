@@ -9,13 +9,22 @@ export function getRainbow() {
 }
 
 //随机视频接口
-export function getRandomVideo(code) {
+export function getRandomVideoMy(data) {
   return fetch({
     //url:'/gaotian/video.php?_t='+code,
-    url:'http://gaogaogaogaogaogao.zs520ds.cn/gaotian/video.php?_t='+code,
+    // url:'http://gaogaogaogaogaogao.zs520ds.cn/gaotian/video.php?_t='+code,
+      url:'http://47.97.104.206:3000/app/videoUrl',
+      params:data,
     method:'get'
   })
-
+}
+export function getRandomVideo(code) {
+    return fetch({
+        //url:'/gaotian/video.php?_t='+code,
+        url:'http://gaogaogaogaogaogao.zs520ds.cn/gaotian/video.php?_t='+code,
+        // url:'http://47.97.104.206:3000/app/videoUrl',
+        method:'get'
+    })
 }
 
 //获取app下载链接
